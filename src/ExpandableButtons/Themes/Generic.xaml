@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ResourceDictionary x:Class="ExpandableButtons.Themes.Generic"
+                    xmlns="http://xamarin.com/schemas/2014/forms"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:pop="clr-namespace:ExpandableButtons" 
+                    xmlns:conv="clr-namespace:Xamarin.CommunityToolkit.Converters;assembly=Xamarin.CommunityToolkit">
+    <!--<conv:IsNullOrEmptyConverter x:Key="IsNullOrEmptyConverter" />-->
+    <conv:IsNotNullOrEmptyConverter x:Key="IsNotNullOrEmptyConverter" />
+
+    <Style TargetType="pop:PopupButton">
+        <Setter Property="ControlTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Grid x:Name="PART_Container"
+                          HorizontalOptions="{TemplateBinding HorizontalContentOptions}"
+                          Margin="0"
+                          Padding="0"
+                          ColumnSpacing="0"
+                          RowSpacing="0" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="pop:ButtonItem">
+        <Setter Property="HeightRequest"
+                Value="40" />
+        <Setter Property="WidthRequest"
+                Value="40" />
+        <Setter Property="HorizontalOptions"
+                Value="Start" />
+        <Setter Property="CornerRadius"
+                Value="20" />
+        <Setter Property="BackgroundColor"
+                Value="Transparent" />
+        <Setter Property="Color"
+                Value="#2E8DCB" />
+        <Setter Property="ColorSelected" Value="Blue" />
+        <Setter Property="ControlTemplate">
+            <Setter.Value>
+                <ControlTemplate x:DataType="pop:ButtonItem">
+                    <Grid Margin="0"
+                          Padding="0">
+                        <Frame x:Name="PART_Border"
+                               BackgroundColor="{TemplateBinding CurrentColor}"
+                               CornerRadius="{TemplateBinding CornerRadius}"
+                               HeightRequest="{TemplateBinding HeightRequest}"
+                               WidthRequest="{TemplateBinding WidthRequest}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor"
+                                                    Value="{TemplateBinding CurrentColor}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState x:Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor"
+                                                    Value="{TemplateBinding ColorSelected}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Frame>
+                        <Grid x:Name="PART_Container"
+                              Margin="10"
+                              HeightRequest="{TemplateBinding HeightRequest}"
+                              RowSpacing="0"
+                              WidthRequest="{TemplateBinding WidthRequest}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Image x:Name="PART_Icon"
+                                   Aspect="AspectFit"
+                                   HorizontalOptions="Center"
+                                   IsVisible="{TemplateBinding ImageSource,
+                                                               Converter={StaticResource IsNotNullOrEmptyConverter}}"
+                                   Source="{TemplateBinding ImageSource}"
+                                   VerticalOptions="Center" />
+                            <Label x:Name="PART_Text"
+                                   Grid.Row="1"
+                                   FontSize="Medium"
+                                   HorizontalTextAlignment="Center"
+                                   IsVisible="{TemplateBinding Text,
+                                                               Converter={StaticResource IsNotNullOrEmptyConverter}}"
+                                   Text="{TemplateBinding Text}"
+                                   TextColor="White"
+                                   VerticalTextAlignment="Center" />
+                            <!--<Label x:Name="PART_Text"
+                                           Grid.Row="1"
+                                           Margin="0, 2"
+                                           FontAttributes="{TemplateBinding CurrentFontAttributes}"
+                                           FontFamily="{TemplateBinding CurrentFontFamily}"
+                                           FontSize="{TemplateBinding CurrentFontSize}"
+                                           HorizontalTextAlignment="Center"
+                                           Text="{TemplateBinding Text}"
+                                           TextColor="{TemplateBinding CurrentTextColor}"
+                                           VerticalTextAlignment="Center" />-->
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
