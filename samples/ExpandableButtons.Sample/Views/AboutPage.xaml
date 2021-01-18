@@ -3,7 +3,9 @@
              xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:expb="clr-namespace:ExpandableButtons;assembly=ExpandableButtons"
-             xmlns:fonts="clr-namespace:ExpandableButtons.Sample.Fonts"
+             xmlns:fonts="clr-namespace:ExpandableButtons.Sample.Fonts" 
+             xmlns:vm="clr-namespace:ExpandableButtons.Sample.ViewModels"
+             x:Name="Page"
              Title="{Binding Title}">
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -12,7 +14,10 @@
             </Color>
         </ResourceDictionary>
     </ContentPage.Resources>
-
+    <ContentPage.BindingContext>
+        <vm:AboutViewModel />
+    </ContentPage.BindingContext>
+    
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
@@ -54,6 +59,7 @@
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>
+                    <Label x:Name="PopupButtonStateLabel" FontSize="20" FontAttributes="Bold"/>
                 </StackLayout>
             </ScrollView>
         </Grid>
@@ -64,19 +70,21 @@
                      Spacing="10"
                      VerticalOptions="End">
             <expb:PopupButton HorizontalContentOptions="End"
+                              Opened="PopupButton_Opened"
+                              Closed="PopupButton_Closed"
                               HorizontalOptions="End"
                               VerticalOptions="End">
                 <expb:PopupButton.ItemsLayout>
                     <expb:DockItemsLayout Dock="Top" />
                 </expb:PopupButton.ItemsLayout>
-                <expb:ButtonItem Color="Gray">
+                <expb:ButtonItem Color="Gray" Command="{Binding CameraCommand}">
                     <expb:ButtonItem.ImageSource>
                         <FontImageSource FontFamily="{x:Static fonts:FontsHelper.FontName}"
                                          Glyph="{x:Static fonts:FontsHelper.FACamera}"
                                          Color="White" />
                     </expb:ButtonItem.ImageSource>
                 </expb:ButtonItem>
-                <expb:ButtonItem Color="Gray">
+                <expb:ButtonItem Color="Gray" IsVisible="{Binding IsTrucVisible}">
                     <expb:ButtonItem.ImageSource>
                         <FontImageSource FontFamily="{x:Static fonts:FontsHelper.FontName}"
                                          Glyph="{x:Static fonts:FontsHelper.FAFile}"
@@ -84,12 +92,17 @@
                     </expb:ButtonItem.ImageSource>
                 </expb:ButtonItem>
                 <expb:PopupButton.Button>
-                    <expb:ButtonItem>
+                    <expb:ButtonItem ColorSelected="Red" Color="Cyan" ColorPressed="DarkCyan">
                         <expb:ButtonItem.ImageSource>
                             <FontImageSource FontFamily="{x:Static fonts:FontsHelper.FontName}"
                                              Glyph="{x:Static fonts:FontsHelper.FAPlus}"
                                              Color="White" />
                         </expb:ButtonItem.ImageSource>
+                        <expb:ButtonItem.ImageSourceSelected>
+                            <FontImageSource FontFamily="{x:Static fonts:FontsHelper.FontName}"
+                                             Glyph="{x:Static fonts:FontsHelper.FACamera}"
+                                             Color="Yellow" />
+                        </expb:ButtonItem.ImageSourceSelected>
                     </expb:ButtonItem>
                 </expb:PopupButton.Button>
             </expb:PopupButton>

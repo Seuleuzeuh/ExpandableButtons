@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Windows.Input;
 using ExpandableButtons.ExpandableLayout;
 using ExpandableButtons.Helpers;
 using Xamarin.Forms;
@@ -20,9 +22,14 @@ namespace ExpandableButtons
         public PopupButton()
         {
             Items = new ObservableCollection<ButtonItem>();
-
+            InternalSubItemCommand = new Command(() => IsOpen = false);
             UpdateIsEnabled();
         }
+        
+        public event EventHandler Opened;
+        public event EventHandler Closed;
+
+        private ICommand InternalSubItemCommand { get; }
 
         public ObservableCollection<ButtonItem> Items { get; set; }
 
@@ -107,9 +114,17 @@ namespace ExpandableButtons
                 return;
 
             if (IsOpen)
+            {
                 _layoutManager.OpenAsync().ExecuteWithoutAwait();
+                Opened?.Invoke(this, EventArgs.Empty);
+            }
             else
+            {
                 _layoutManager.CloseAsync().ExecuteWithoutAwait();
+                Closed?.Invoke(this, EventArgs.Empty);
+            }
+
+            Button?.SetSelectedState(IsOpen);
         }
 
         protected override void OnApplyTemplate()
@@ -123,9 +138,7 @@ namespace ExpandableButtons
         {
             Items.Clear();
             foreach (var item in ItemsSource)
-            {
                 Items.Add(item);
-            }
         }
 
         void UpdateIsEnabled()
@@ -170,7 +183,12 @@ namespace ExpandableButtons
                 _layoutManager.ItemsRemoved(e.OldItems.OfType<ButtonItem>());
 
             if (e.NewItems != null)
-                _layoutManager.ItemsAdded(e.NewItems.OfType<ButtonItem>());
+            {
+                var addedItems = e.NewItems.OfType<ButtonItem>();
+                _layoutManager.ItemsAdded(addedItems);
+                SetSubItemInternalCommand(Items);
+                UpdateButtonItemsBindingContext(addedItems);
+            }
         }
 
         void UpdateLayout()
@@ -187,13 +205,43 @@ namespace ExpandableButtons
             if (_layoutManager != null)
             {
                 View generatedLayout = _layoutManager.GenerateLayout(Items, Button, IsOpen);
+                UpdateButtonItemsBindingContext(Items);
                 _container.Children.Add(generatedLayout);
-                Button.Command = new Command(() =>
+                SetSubItemInternalCommand(Items);
+                Button.InternalCommand = new Command(() =>
                 {
                     IsOpen = !IsOpen;
-                    VisualStateManager.GoToState(Button, IsOpen ? VisualStateManager.CommonStates.Selected : VisualStateManager.CommonStates.Normal);
                 });
             }
+        }
+
+        private void SetSubItemInternalCommand(IEnumerable<ButtonItem> items)
+        {
+            foreach (var item in items)
+                item.InternalCommand = InternalSubItemCommand;
+        }
+
+        protected override void OnBindingContextChanged()
+        {
+            base.OnBindingContextChanged();
+            UpdateButtonItemsBindingContext(Items);
+        }
+
+        private void UpdateButtonItemsBindingContext(IEnumerable<ButtonItem> buttonItems)
+        {
+            if (Items == null || Items.Count == 0)
+                return;
+
+            foreach (var buttonItem in buttonItems.ToList())
+                UpdateButtonItemBindingContext(buttonItem);
+        }
+
+        private void UpdateButtonItemBindingContext(ButtonItem buttonItem)
+        {
+            if (buttonItem == null)
+                return;
+
+            buttonItem.BindingContext = BindingContext;
         }
     }
 }

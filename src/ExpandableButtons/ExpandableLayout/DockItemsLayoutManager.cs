@@ -32,19 +32,25 @@ namespace ExpandableButtons.ExpandableLayout
         {
             Grid itemsContainer = new Grid()
             {
-                ColumnSpacing = _dockItemsLayout.ItemsSpacing,
-                RowSpacing = _dockItemsLayout.ItemsSpacing,
-                Margin = GetItemsContainerMargin(),
+                ColumnSpacing = 0,
+                RowSpacing = 0,
                 IsVisible = isOpen,
                 Opacity = isOpen ? 1 : 0
             };
             for (int i = 0; i < items.Count; i++)
             {
                 ButtonItem item = items[i];
+                item.Margin = GetItemsContainerMargin();
                 if (_dockItemsLayout.Dock == Dock.Top || _dockItemsLayout.Dock == Dock.Bottom)
+                {
                     Grid.SetRow(item, i);
+                    _itemsContainer.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+                }
                 else
+                {
                     Grid.SetColumn(item, i);
+                    _itemsContainer.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                }
 
                 itemsContainer.Children.Add(item);
             }
@@ -69,10 +75,17 @@ namespace ExpandableButtons.ExpandableLayout
             int index = _itemsContainer.Children.Count;
             foreach (var item in addedItems)
             {
+                item.Margin = GetItemsContainerMargin();
                 if (_dockItemsLayout.Dock == Dock.Top || _dockItemsLayout.Dock == Dock.Bottom)
+                {
                     Grid.SetRow(item, index);
+                    _itemsContainer.RowDefinitions.Add(new RowDefinition() { Height = GridLength.Auto });
+                }
                 else
+                {
                     Grid.SetColumn(item, index);
+                    _itemsContainer.ColumnDefinitions.Add(new ColumnDefinition() { Width = GridLength.Auto });
+                }
 
                 _itemsContainer.Children.Add(item);
                 index++;
@@ -99,6 +112,10 @@ namespace ExpandableButtons.ExpandableLayout
                 }
 
                 _itemsContainer.Children.Remove(item);
+                if (_dockItemsLayout.Dock == Dock.Top || _dockItemsLayout.Dock == Dock.Bottom)
+                    _itemsContainer.RowDefinitions.RemoveAt(itemIndex);
+                else
+                    _itemsContainer.ColumnDefinitions.RemoveAt(itemIndex);
                 totalItems--;
             }
         }

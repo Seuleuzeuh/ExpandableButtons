@@ -13,12 +13,10 @@ namespace ExpandableButtons
 
         Frame _border;
         private TouchEffect _touchEff;
+        private TouchState _currentTouchState = TouchState.Normal;
 
         public ButtonItem()
         {
-            //TapGestureRecognizer tapGesture = new TapGestureRecognizer();
-            //tapGesture.Tapped += TapGestureTapped;
-            //GestureRecognizers.Add(tapGesture);
             _touchEff = new TouchEffect();
             Effects.Add(_touchEff);
             _touchEff.StateChanged += TouchStateChanged;
@@ -28,14 +26,13 @@ namespace ExpandableButtons
         private void InternalExecuteCommand()
         {
             Command?.Execute(CommandParameter);
+            InternalCommand?.Execute(null);
         }
 
         private void TouchStateChanged(object sender, TouchStateChangedEventArgs args)
         {
-            if(args.State == TouchState.Pressed)
-            {
-
-            }
+            _currentTouchState = args.State;
+            UpdateCurrent();
         }
 
         protected override void OnApplyTemplate()
@@ -45,10 +42,13 @@ namespace ExpandableButtons
             _border = GetTemplateChild(BorderPart) as Frame;
         }
 
-        internal void SetSelectedState()
+        internal void SetSelectedState(bool isSelected)
         {
-
+            VisualStateManager.GoToState(this, isSelected ? VisualStateManager.CommonStates.Selected : VisualStateManager.CommonStates.Normal);
+            IsSelected = isSelected;
         }
+
+        internal ICommand InternalCommand { get; set; }
 
         public static readonly BindableProperty CommandProperty =
          BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(ButtonItem), null);
@@ -95,6 +95,15 @@ namespace ExpandableButtons
             set { SetValue(TextSelectedProperty, value); }
         }
 
+        public static readonly BindableProperty TextPressedProperty =
+         BindableProperty.Create(nameof(TextPressed), typeof(string), typeof(ButtonItem), null, propertyChanged: OnButtonItemPropertyChanged);
+
+        public string TextPressed
+        {
+            get { return (string)GetValue(TextPressedProperty); }
+            set { SetValue(TextPressedProperty, value); }
+        }
+
         public static readonly BindableProperty ImageSourceProperty =
          BindableProperty.Create(nameof(ImageSource), typeof(ImageSource), typeof(ButtonItem), null, propertyChanged: OnButtonItemPropertyChanged);
 
@@ -111,6 +120,15 @@ namespace ExpandableButtons
         {
             get { return (ImageSource)GetValue(ImageSourceSelectedProperty); }
             set { SetValue(ImageSourceSelectedProperty, value); }
+        }
+
+        public static readonly BindableProperty ImageSourcePressedProperty =
+         BindableProperty.Create(nameof(ImageSourcePressed), typeof(ImageSource), typeof(ButtonItem), null, propertyChanged: OnButtonItemPropertyChanged);
+
+        public ImageSource ImageSourcePressed
+        {
+            get { return (ImageSource)GetValue(ImageSourcePressedProperty); }
+            set { SetValue(ImageSourcePressedProperty, value); }
         }
 
         public static readonly BindableProperty CornerRadiusProperty =
@@ -228,10 +246,11 @@ namespace ExpandableButtons
 
         private void UpdateCurrent()
         {
-            CurrentColor = IsSelected && ColorSelected != Color.Default ? ColorSelected : Color;
-            CurrentImageSource = IsSelected && ImageSourceSelected != null ? ImageSourceSelected : ImageSource;
-            CurrentText = IsSelected && !string.IsNullOrEmpty(TextSelected) ? TextSelected : Text;
-            CurrentTextColor = IsSelected && TextColorSelected != Color.Default ? TextColorSelected : TextColor;
+            bool isPressed = _currentTouchState == TouchState.Pressed;
+            CurrentColor = IsSelected && ColorSelected != Color.Default ? ColorSelected : isPressed && ColorPressed != Color.Default ? ColorPressed : Color;
+            CurrentImageSource = IsSelected && ImageSourceSelected != null ? ImageSourceSelected : isPressed && ImageSourcePressed != null ? ImageSourcePressed :  ImageSource;
+            CurrentText = IsSelected && !string.IsNullOrEmpty(TextSelected) ? TextSelected : isPressed && !string.IsNullOrEmpty(TextPressed) ? TextPressed : Text;
+            CurrentTextColor = IsSelected && TextColorSelected != Color.Default ? TextColorSelected : isPressed && TextColorPressed != Color.Default ? TextColorPressed : TextColor;
         }
     }
 }
