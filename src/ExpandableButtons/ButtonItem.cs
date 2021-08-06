@@ -25,8 +25,16 @@ namespace ExpandableButtons
 
         private void InternalExecuteCommand()
         {
-            Command?.Execute(CommandParameter);
-            InternalCommand?.Execute(null);
+            if (Command != null)
+            {
+                if (Command.CanExecute(CommandParameter))
+                {
+                    Command.Execute(CommandParameter);
+                    InternalCommand?.Execute(null);
+                }
+            }
+            else
+                InternalCommand?.Execute(null);
         }
 
         private void TouchStateChanged(object sender, TouchStateChangedEventArgs args)
@@ -51,7 +59,36 @@ namespace ExpandableButtons
         internal ICommand InternalCommand { get; set; }
 
         public static readonly BindableProperty CommandProperty =
-         BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(ButtonItem), null);
+         BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(ButtonItem), null, propertyChanged:OnCommandPropertyChanged);
+
+        private static void OnCommandPropertyChanged(BindableObject bindable, object oldValue, object newValue)
+        {
+            if (bindable is ButtonItem buttonItem)
+            {
+                if (oldValue != null && oldValue is ICommand oldCommand)
+                {
+                    oldCommand.CanExecuteChanged -= buttonItem.OnCommandCanExecuteChanged;
+                }
+
+                if (newValue != null && newValue is ICommand newCommand)
+                {
+                    newCommand.CanExecuteChanged += buttonItem.OnCommandCanExecuteChanged; 
+                }
+
+                buttonItem.EvaluateCommandCanExecute();
+            }
+        }
+
+        private void OnCommandCanExecuteChanged(object sender, EventArgs e)
+        {
+            EvaluateCommandCanExecute();
+        }
+
+        private void EvaluateCommandCanExecute()
+        {
+            var canExecute = Command?.CanExecute(CommandParameter) ?? true;
+            IsEnabled = canExecute;
+        }
 
         public ICommand Command
         {

@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
     using Xamarin.Forms;
 
-    public static class TaskHelper
+    internal static class TaskHelper
     {
         #region Exceptions
 

@@ -16,9 +16,11 @@ namespace ExpandableButtons.Sample.ViewModels
                 App.Current.MainPage.DisplayPromptAsync("Camera Command", "You tapped on the Camera Button");
                 IsTrucVisible = !IsTrucVisible;
             });
+            CommandNotExecutable = new Command(() => { }, () => false);
         }
 
         public ICommand CameraCommand { get; }
+        public ICommand CommandNotExecutable { get; }
         private bool _isTrucVisible;
         public bool IsTrucVisible
         {
